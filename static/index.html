@@ -1,0 +1,125 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+  <title> Transcal: Calorão </title>
+</head>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("submit").onclick = () => {
+        let minutes = document.getElementById("minutes").value
+        let alpha = document.getElementById("alpha").value
+        let l = document.getElementById("l").value
+        let dx = document.getElementById("dx").value
+        let dy = document.getElementById("dy").value
+        let dt = document.getElementById("dt").value
+        let top = document.getElementById("top").value
+        let left = document.getElementById("left").value
+        let bottom = document.getElementById("bottom").value
+        let right = document.getElementById("right").value
+        
+        let dict = {minutes: minutes, alpha: alpha,
+          l: l, dx: dx, dy: dy, dt: dt, ci:[top,right,bottom,left]
+        }
+ 
+        fetch('/calc', {
+          method: "POST",
+          body: JSON.stringify(dict)
+        }) 
+      }
+    })
+
+</script>
+
+<style>
+  label {
+    min-width: 60px !important;
+    display: inline-block;
+  }
+
+  #right {
+    float: right;
+  }
+
+  #top, #right, #left, #bottom {
+    margin: 5px 0 5px 0;
+    width: 40px;
+  }
+
+</style>
+
+
+<body>
+  <p style="text-align: center;">
+    <b>TRANSCAL</b>
+  </p>
+  
+  <div style="padding-left: 0px; text-align: center">
+
+    <!-- minutos -->
+    <label for="minutes"> Minutes </label>
+    <input id="minutes" type="text" />
+    <br/>
+
+    <!-- alpha -->
+    <label for="alpha"> Alpha </label>
+    <input id="alpha" type="text" />
+    <br/>
+
+    <!-- L -->
+    <label for="l"> L </label>
+    <input id="l" type="text" />
+    <br/>
+
+    <!-- DX -->
+    <label for="dx"> DX </label>
+    <input id="dx" type="text" />
+    <br/>
+
+    <!-- DY -->
+    <label for="dy"> DY </label>
+    <input id="dy" type="text" />
+    <br/>
+
+    <!-- DT -->
+    <label for="dt"> DT </label>
+    <input id="dt" type="text" />
+    <br/>
+
+    <br/>
+
+  </div>
+  
+  <div style="max-width: 90%">
+    <div>
+      <label for="top" style="width: 100%; text-align: center;"> top </label>
+      <input id="top" type="text" style="display: block; margin: 0 auto;" />
+    </div>
+    <div>
+      <label for="left" style="width: 49%;"> left </label>
+      <label for="right" style="width: 49%; text-align: end"> right </label>      
+    </div>
+
+    <div>
+      <input id="left" type="text" />
+      <input id="right" type="text" />
+    </div>
+    
+    <div>
+      <label for="bottom" style="width: 100%; text-align: center;"> bottom </label>      
+      <input id="bottom" type="text" style="display: block; margin: 0 auto;" />
+    </div>
+  </div>
+
+  <div style="width: 100%; text-align: center; margin-top: 10px;">
+    <button id="submit"> Calculate </button>
+  </div>
+  <!-- CONTORNO --> 
+  
+</body>
+
+</html>
