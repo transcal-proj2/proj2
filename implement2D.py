@@ -16,7 +16,7 @@ class Calc():
     self.l = l
     self.dx = dx
     self.dy = dy
-    self.dt = dt 
+    self.dt = dt
     self.alpha = alpha
     self.minutos = minutos
     self.fo = float(self.alpha*self.dt)/(self.dx**2)
@@ -24,7 +24,7 @@ class Calc():
     self.columns = int(self.l/self.dy)
     self.initial = np.zeros((self.rows, self.columns))
     self.timeline = []
-    self.ci = ci # self.ci = [120, 50, 0, 75]
+    self.ci = ci  # self.ci = [120, 50, 0, 75]
 
     # FILLS CONTOURS
     for i in range(self.rows):
@@ -36,7 +36,7 @@ class Calc():
 
     self.timeline.append(Instant(self.initial, self.n))
     self.n += 1
-
+    
   def calculate(self):
     "Fills self.timeline with calculated values"
 
@@ -72,8 +72,6 @@ class Calc():
       # print(timeline[i])
       self.im1.set_data(self.timeline[i].array)
       self.fig.canvas.draw()
-
-
 
 # padding
 # self.initial = np.pad(self.initial, (1, 1, 1,), mode='constant', constant_values=(200, 200))
