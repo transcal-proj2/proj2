@@ -25,6 +25,8 @@ class Calc():
     self.initial = np.zeros((self.rows, self.columns))
     self.timeline = []
     self.ci = ci  # self.ci = [120, 50, 0, 75]
+    self.max_error = -1
+    self.tol = 0.00005
 
     # FILLS CONTOURS
     for i in range(self.rows):
@@ -36,22 +38,128 @@ class Calc():
 
     self.timeline.append(Instant(self.initial, self.n))
     self.n += 1
-    
+
   def calculate(self):
     "Fills self.timeline with calculated values"
+
+    # Checks if there is a isolated edge
+    if None in self.ci:
+      return self.calculateIsolated()
+    else:
+      print("Normal calculation")
 
     for t in range(1, int(60/self.dt) * self.minutos + 1):
       prev = np.copy(self.timeline[t - 1].array)
       new = np.copy(prev)
 
+      biggest_iteration_error = 0
       for i in range(1, self.rows - 1):
         for j in range(1, self.columns - 1):
           new[i][j] = (self.fo * (prev[i][j+1] + prev[i][j-1] + prev[i-1][j] + prev[i+1][j])
                       + (1 - (4*self.fo)) * prev[i][j])
 
+          if(new[i][j] != 0):
+            erro = abs((new[i][j] - prev[i][j]) / new[i][j])
+          else:
+            erro = abs((new[i][j] - prev[i][j]))
+
+          # print("error: ", erro)
+          if (erro > self.max_error and t > 1):
+            self.max_error = erro        
+
+          if (erro > biggest_iteration_error):
+            biggest_iteration_error = erro
+
       self.timeline.append(Instant(new, self.n))
       self.n += 1
-    
+
+      # print("max_error: ", self.max_error)
+      if(biggest_iteration_error < self.tol):
+        print("Passou da tolerancia")
+        break
+  
+  def isOnEdge(self, i, j):
+    if i == 0:
+      return 0
+    elif j == 0:
+      return 3
+    elif i == self.rows - 1:
+      return 2
+    elif j == self.columns - 1:
+      return 1
+    else:  
+      return -1
+
+  def isOnCorner(self, i, j):
+    if ((i == 0 and j == 0) or (i == 0 and j == self.columns-1)
+      or (i == self.rows-1 and j == 0) or (i == self.rows-1 and j == self.columns-1)):
+        return True
+    return False
+      
+  def calculateIsolated(self):
+    "Fills self.timeline with calculated values"
+
+    self.initial[np.isnan(self.initial)] = 0
+
+    print("Has isolated border")
+    for t in range(1, int(60/self.dt) * self.minutos + 1):
+      prev = np.copy(self.timeline[t - 1].array)
+      new = np.copy(prev)
+
+      biggest_iteration_error = 0
+      for i in range(0, self.rows):
+        for j in range(0, self.columns):
+          edge = self.isOnEdge(i, j)
+
+          # se ta em um canto
+          if self.isOnCorner(i, j):
+            continue # ignora
+
+          # se ta em uma lateral
+          elif edge != -1:
+            # e ta isolado
+            if self.ci[edge] == None:
+              # faz a operação especifica pra cada borda
+              if edge == 0:
+                new[i][j] = (self.fo * (prev[i][j+1] + prev[i][j-1] + 0 + prev[i+1][j])
+                  + (1 - (4*self.fo)) * prev[i][j])
+              elif edge == 1:
+                new[i][j] = (self.fo * (0 + prev[i][j-1] + prev[i-1][j] + prev[i+1][j])
+                  + (1 - (4*self.fo)) * prev[i][j])
+              elif edge == 2:
+                new[i][j] = (self.fo * (prev[i][j+1] + prev[i][j-1] + prev[i-1][j] + 0)
+                  + (1 - (4*self.fo)) * prev[i][j])
+              elif edge == 3:
+                new[i][j] = (self.fo * (prev[i][j+1] + 0 + prev[i-1][j] + prev[i+1][j])
+                  + (1 - (4*self.fo)) * prev[i][j])
+            # se ta numa lateral mas nao ta isolado 
+            else:
+              continue
+          
+          else:
+            new[i][j] = (self.fo * (prev[i][j+1] + prev[i][j-1] + prev[i-1][j] + prev[i+1][j])
+              + (1 - (4*self.fo)) * prev[i][j])
+
+          if(new[i][j] != 0):
+            erro = abs((new[i][j] - prev[i][j]) / new[i][j])
+          else:
+            erro = abs((new[i][j] - prev[i][j]))
+
+          # print("error: ", erro)
+          if (erro > self.max_error and t > 1):
+            self.max_error = erro
+
+          if (erro > biggest_iteration_error):
+            biggest_iteration_error = erro
+
+      self.timeline.append(Instant(new, self.n))
+      self.n += 1
+
+      # print("max_error: ", self.max_error)
+      if(biggest_iteration_error < self.tol):
+        print("Passou da tolerancia")
+        break
+
   def show(self):
     plt.switch_backend('Qt5Agg')
     self.fig = plt.figure(figsize=(8, 6))

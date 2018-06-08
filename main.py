@@ -8,6 +8,12 @@ import json
 app = Flask(__name__)
 
 
+def checkContours(cItem):
+  if cItem == 'isolado':
+    return None
+  else:
+    return float(cItem)
+
 @app.route("/")
 def root():
   return app.send_static_file('./index.html')
@@ -17,8 +23,10 @@ def root():
 def calc():
   data = json.loads(request.data)
   # print(data)
-  ci = list(map(lambda x: float(x), data["ci"]))
+
+  ci = list(map(checkContours, data["ci"]))
   # ci = data["ci"].map(lambda x: int(x))
+  
   c = Calc(int(data["minutes"]), float(data["alpha"]), float(data["l"]), float(data["dx"]),
            float(data["dy"]), float(data["dt"]), ci)
 
