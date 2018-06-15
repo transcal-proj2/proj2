@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import math
 from flask import Flask
+import time
 
 class Instant():
   def __init__(self, instant_np_array, n_id):
@@ -27,6 +28,11 @@ class Calc():
     self.ci = ci  # self.ci = [120, 50, 0, 75]
     self.max_error = -1
     self.tol = 0.00005
+    
+    if (self.fo > 0.5):
+      raise Exception('Não atingiu convergência !!! Fo > 0.5 ')
+
+    print("nós :", self.rows * self.columns)
 
     # FILLS CONTOURS
     for i in range(self.rows):
@@ -48,6 +54,7 @@ class Calc():
     else:
       print("Normal calculation")
 
+    start = time.time()
     for t in range(1, int(60/self.dt) * self.minutos + 1):
       prev = np.copy(self.timeline[t - 1].array)
       new = np.copy(prev)
@@ -77,7 +84,11 @@ class Calc():
       if(biggest_iteration_error < self.tol):
         print("Passou da tolerancia")
         break
-  
+
+    end = time.time()
+    deltaT = end - start
+    print("took ", deltaT, "ms")
+
   def isOnEdge(self, i, j):
     if i == 0:
       return 0
